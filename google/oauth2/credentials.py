@@ -75,6 +75,7 @@ class Credentials(credentials.ReadOnlyScoped, credentials.CredentialsWithQuotaPr
         expiry=None,
         rapt_token=None,
         refresh_handler=None,
+        enable_reauth_refresh=False,
     ):
         """
         Args:
@@ -111,6 +112,8 @@ class Credentials(credentials.ReadOnlyScoped, credentials.CredentialsWithQuotaPr
                 refresh tokens are provided and tokens are obtained by calling
                 some external process on demand. It is particularly useful for
                 retrieving downscoped tokens from a token broker.
+            enable_reauth_refresh (Optional[bool]): Whether reauth refresh flow should
+                be used. The default value is False.
         """
         super(Credentials, self).__init__()
         self.token = token
@@ -125,6 +128,7 @@ class Credentials(credentials.ReadOnlyScoped, credentials.CredentialsWithQuotaPr
         self._quota_project_id = quota_project_id
         self._rapt_token = rapt_token
         self.refresh_handler = refresh_handler
+        self._enable_reauth_refresh = enable_reauth_refresh
 
     def __getstate__(self):
         """A __getstate__ method must exist for the __setstate__ to be called
@@ -153,6 +157,7 @@ class Credentials(credentials.ReadOnlyScoped, credentials.CredentialsWithQuotaPr
         self._client_secret = d.get("_client_secret")
         self._quota_project_id = d.get("_quota_project_id")
         self._rapt_token = d.get("_rapt_token")
+        self._enable_reauth_refresh = d.get("_enable_reauth_refresh")
         # The refresh_handler setter should be used to repopulate this.
         self._refresh_handler = None
 
@@ -243,6 +248,7 @@ class Credentials(credentials.ReadOnlyScoped, credentials.CredentialsWithQuotaPr
             default_scopes=self.default_scopes,
             quota_project_id=quota_project_id,
             rapt_token=self.rapt_token,
+            enable_reauth_refresh=self._enable_reauth_refresh,
         )
 
     @_helpers.copy_docstring(credentials.Credentials)
@@ -298,6 +304,7 @@ class Credentials(credentials.ReadOnlyScoped, credentials.CredentialsWithQuotaPr
             self._client_secret,
             scopes=scopes,
             rapt_token=self._rapt_token,
+            enable_reauth_refresh=self._enable_reauth_refresh,
         )
 
         self.token = access_token
